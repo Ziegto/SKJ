@@ -1,0 +1,7 @@
+-> abx 350
+abx -> zz 100
+abx -> cxyz 80
+abx -> zz 100
+zz -> abx 100
+abx -> cxyz 50
+cxyz -> zz 10

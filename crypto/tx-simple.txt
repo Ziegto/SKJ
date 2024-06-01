@@ -1,0 +1,7 @@
+-> ab 350
+ab -> cd 300
+ab -> ce 50
+cd -> ce 200
+ce -> ab 100
+-> ab 500
+ab -> cd 580
