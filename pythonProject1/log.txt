@@ -1,0 +1,5 @@
+GET /index.html 200 OK
+POST /form.php 302 Found
+GET /nonexistent.jpg 404 Not Found
+POST /api/data 500 Internal Server Error
+GET /index.html 200 OK
