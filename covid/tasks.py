@@ -1,5 +1,4 @@
-def find_dangerous_contacts(file: str, max_distance: float):
-    """
+"""
     Úkol 1
 
     Server aplikace eRouška se pokazil a nelze tak vyhodnocovat rizikové kontakty!
@@ -50,12 +49,97 @@ def find_dangerous_contacts(file: str, max_distance: float):
     """
 
 
+def euclidean_distance(p1, p2):
+    return ((p1[0] - p2[0]) ** 2 + (p1[1] - p2[1]) ** 2 + (p1[2] - p2[2]) ** 2) ** 0.5
+
+
+def find_dangerous_contacts(file: str, max_distance: float):
+    with open(file, 'r') as f:
+        lines = f.readlines()
+
+    records = []
+    for line in lines:
+        parts = line.strip().split()
+        timestamp = int(parts[0].strip(':'))
+        user = parts[1]
+        x, y, z = map(int, parts[2:])
+        records.append((timestamp, user, (x, y, z)))
+
+    records_by_time = {}
+    for record in records:
+        timestamp, user, position = record
+        if timestamp not in records_by_time:
+            records_by_time[timestamp] = []
+        records_by_time[timestamp].append((user, position))
+
+    dangerous_contacts = set()
+    for timestamp, user_positions in records_by_time.items():
+        for i in range(len(user_positions)):
+            user_a, pos_a = user_positions[i]
+            for j in range(i + 1, len(user_positions)):
+                user_b, pos_b = user_positions[j]
+                if euclidean_distance(pos_a, pos_b) <= max_distance:
+                    dangerous_contacts.add(tuple(sorted([user_a, user_b])))
+
+    sorted_contacts = sorted(dangerous_contacts)
+
+    return sorted_contacts
+
+
 class VaccinationCenter:
+    def __init__(self, ockovani: int, pozorovani: int):
+        self.ockovani = ockovani
+        self.pozorovani = pozorovani
+        self.pocetOckovani = 0
+        self.pocetPozorovani = 0
+        self.cas = 0
+        self.pocetOdesli = 0
+
+        self.mistnostOckovani = []
+        self.mistnostPozorovani = []
+
+    def vaccination_room_count(self):
+        return self.pocetOckovani
+
+    def waiting_room_count(self):
+        return self.pocetPozorovani
+
+    def patient_finished_count(self):
+        return self.pocetOdesli
+
+    def accept_patient(self, n):
+        if self.pocetOckovani < self.ockovani:
+            self.mistnostOckovani.append((self.cas, n))
+            self.pocetOckovani += 1
+        else:
+            raise Exception("CHYBA: Není dostatek místa v místnosti pro očkování")
+
+    def advance_time(self, n):
+        for _ in range(n):
+            self.cas += 1
+
+            self.mistnostPozorovani = [(start_time, obs_time - 1) for start_time, obs_time in self.mistnostPozorovani]
+            odesli_pacienti = [obs_time for start_time, obs_time in self.mistnostPozorovani if obs_time <= 0]
+            self.pocetOdesli += len(odesli_pacienti)
+            self.mistnostPozorovani = [(start_time, obs_time) for start_time, obs_time in self.mistnostPozorovani if
+                                       obs_time > 0]
+            self.pocetPozorovani = len(self.mistnostPozorovani)
+
+            novy_mistnostOckovani = []
+            for start_time, obs_time in self.mistnostOckovani:
+                if self.cas - start_time >= self.ockovani:
+                    if self.pocetPozorovani < self.pozorovani:
+                        self.mistnostPozorovani.append((self.cas, obs_time))
+                        self.pocetPozorovani += 1
+                        self.pocetOckovani -= 1
+                    else:
+                        novy_mistnostOckovani.append((start_time, obs_time))
+                else:
+                    novy_mistnostOckovani.append((start_time, obs_time))
+            self.mistnostOckovani = novy_mistnostOckovani
+
     """
     Úkol 2
-
-    Očkovací centrum na Černé louce napadli hackeři a znemožnili tak fungování jejich systému.
-    Vytvořte třídu `VaccinationCenter`, která bude simulovat chod očkovacího centra.
 
     Třída bude modelovat dvě místnosti: místnost, kde probíhá očkování, a místnost, kam jdou pacienti
     po očkování na pozorování. Každá místnost má omezenou kapacitu.
@@ -108,4 +192,3 @@ class VaccinationCenter:
 
     Další ukázky a modelové situace naleznete v souboru `tests.py`.
     """
-    pass

@@ -1,0 +1,5 @@
+3: karel 1 2 5
+2: jana 8 9 3
+0: martina -3 6 8
+2: františek 7 9 3
+3: františek 1 2 3
