@@ -88,27 +88,31 @@ Ukázkové výstupy pro vstupní soubory `test*.txt` naleznete v souboru `tests.
 class CounterManager:
     def __init__(self, prepazky):
         self.prepazky = prepazky
-        self.fronty = [[] for _ in prepazky]  # Fronty jsou zpočátku prázdné
-        self.odbaveni_navstevnici = [0 for _ in prepazky]  # Počet odbavených návštěvníků
+        self.fronty = self.initialize_fronty(prepazky)
+        self.odbaveni_navstevnici = [0] * len(prepazky)
+
+    @staticmethod
+    def initialize_fronty(prepazky):
+        fronty = []
+        for _ in prepazky:
+            fronty.append([])
+        return fronty
 
     def queue_visitor(self, pozadavky):
         vhodne_prepazky = []
-
         for idx, prep in enumerate(self.prepazky):
-            if all(p in prep for p in pozadavky):
-                if len(self.fronty[idx]) < 5:
-                    vhodne_prepazky.append((idx, len(self.fronty[idx])))
+            if all(p in prep for p in pozadavky) and len(self.fronty[idx]) < 5:
+                vhodne_prepazky.append((idx, len(self.fronty[idx])))
 
         if not vhodne_prepazky:
             raise Exception("No suitable counter found or all queues are full")
 
-        vhodne_prepazky.sort(key=lambda x: (x[1], x[0]))
-        vybrana_prepazka = vhodne_prepazky[0][0]
+        vybrana_prepazka = min(vhodne_prepazky, key=lambda x: (x[1], x[0]))[0]
         self.fronty[vybrana_prepazka].append(pozadavky)
         return vybrana_prepazka + 1
 
     def counter_advance(self, id):
-        if id < 1 or id > len(self.prepazky):
+        if not 1 <= id <= len(self.prepazky):
             raise Exception("Invalid counter ID")
 
         idx = id - 1
@@ -123,6 +127,7 @@ class CounterManager:
 
     def counter_finished_visitors(self):
         return self.odbaveni_navstevnici
+
 
 
 """
