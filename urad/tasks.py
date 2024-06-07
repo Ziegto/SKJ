@@ -88,15 +88,8 @@ Ukázkové výstupy pro vstupní soubory `test*.txt` naleznete v souboru `tests.
 class CounterManager:
     def __init__(self, prepazky):
         self.prepazky = prepazky
-        self.fronty = self.initialize_fronty(prepazky)
+        self.fronty = [[] for _ in prepazky]
         self.odbaveni_navstevnici = [0] * len(prepazky)
-
-    @staticmethod
-    def initialize_fronty(prepazky):
-        fronty = []
-        for _ in prepazky:
-            fronty.append([])
-        return fronty
 
     def queue_visitor(self, pozadavky):
         vhodne_prepazky = []
@@ -127,6 +120,7 @@ class CounterManager:
 
     def counter_finished_visitors(self):
         return self.odbaveni_navstevnici
+
 
 
 
